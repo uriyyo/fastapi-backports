@@ -8,13 +8,19 @@ from ._backports import (
     type_alias_type,
 )
 
+_BACKPORTED = set()
+
 
 def _run_backports(backports: Iterable[Type[BaseBackporter]]) -> None:
     for _backport in backports:
         if not _backport.needs_backport():
             continue
 
+        if _backport.label() in _BACKPORTED:
+            continue
+
         _backport.backport()
+        _BACKPORTED.add(_backport.label())
 
 
 class _AvailableBackports(TypedDict):
