@@ -112,13 +112,32 @@ You can also manually control which backports to apply:
 
 ```python
 import fastapi_backports
+from fastapi import FastAPI
 
-# Apply all backports
+# ⚠️ IMPORTANT: Apply backports BEFORE creating FastAPI app or routes
 fastapi_backports.backport()
 
-# Or apply specific backports only
+# Now create your app
+app = FastAPI()
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+```
+
+You can also apply specific backports only:
+
+```python
+import fastapi_backports
+from fastapi import FastAPI
+
+# Apply only specific backports
 fastapi_backports.backport(
     multiple_query_models=True,
     type_alias_type=False
 )
+
+app = FastAPI()
 ```
+
+> **⚠️ Important**: When using manual backport control, always call `fastapi_backports.backport()` **before** creating your FastAPI application instance or defining any routes. The backports modify FastAPI's internal behavior and must be applied before FastAPI processes your route definitions.
