@@ -41,4 +41,4 @@ jobs:
           PYDANTIC_V2: ${{ matrix.pydantic_v2 }}
           FASTAPI_VERSION: ${{ matrix.fastapi_version }}
         run: |
-          bash ./scripts/tests.sh
+          bash ./scripts/test.sh
