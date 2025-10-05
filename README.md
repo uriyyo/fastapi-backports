@@ -105,6 +105,8 @@ async def root():
 
 The backports are automatically applied when you import `fastapi_backports.apply`.
 
+> **💡 Note**: The `# noqa: F401` comment is needed to prevent linters from complaining about an "unused import". While the import appears unused, it actually applies the backports through side effects when imported.
+
 ### Manual Backport Control
 
 For more control over when backports are applied:
