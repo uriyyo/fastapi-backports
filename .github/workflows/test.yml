@@ -12,11 +12,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: "py${{ matrix.python-version }}; pydantic-${{ matrix.pydantic_v2 == 'true' && 'v2' || 'v1' }}; fastapi${{ matrix.fastapi_pre_0_112_4 == 'true' && '<0.12.4' || '>=0.12.4' }}"
+    name: "py${{ matrix.python-version }}; pydantic-${{ matrix.pydantic_v2 == 'true' && 'v2' || 'v1' }}; fastapi-${{ matrix.fastapi_version }}"
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.9", "3.10", "3.11", "3.12", "3.13" ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
         pydantic_v2: [ "true", "false" ]
         fastapi_version: [ "latest" ]
 
