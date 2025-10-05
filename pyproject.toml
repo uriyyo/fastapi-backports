@@ -1,0 +1,97 @@
+[project]
+name = "fastapi-backports"
+version = "0.1.0"
+description = "Backports for FastAPI"
+authors = [
+    { name = "Yurii Karabas", email = "1998uriyyo@gmail.com" },
+]
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+classifiers = [
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = [
+    "fastapi>=0.118.0",
+]
+
+[project.urls]
+Repository = "https://github.com/uriyyo/fastapi-backports"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pre-commit>=3.5.0",
+    "pytest>=8.3.5",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.13.3",
+    "ty>=0.0.1a21",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 120
+target-version = "py38"
+
+[tool.ruff.lint]
+select = [
+    "ALL", # select all checks by default
+]
+ignore = [
+    # single rule exclude
+    "C901", # is too complex (McCabe complexity)
+    "S101", # use of assert detected
+    "PLC0415", # ignore only top-level imports
+    "SLF001", # allow access to private members
+    "COM812", # will be handled by ruff format
+    "PERF403", # ignore replacing with compehension
+
+    # full rule exclude
+    "D", # ignore docstrings
+    "FA", # ignore future annotations
+    "ANN", # ignore annotations
+    "FIX", # ignore FIXMEs
+    "TD", # ignore all TODOs
+    "ARG", # ignore unused arguments
+    "FBT", # ignore flake8-boolean-trap
+    "EM", # ignore error message formatting
+]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    ".venv",
+]
+per-file-ignores = { }
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
