@@ -21,7 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
 ]
 dependencies = [
-    "fastapi>=0.118.0",
+    "fastapi>=0.115.0",
 ]
 
 [project.urls]

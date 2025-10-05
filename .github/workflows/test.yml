@@ -18,7 +18,7 @@ jobs:
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
         pydantic_v2: [ "true", "false" ]
-        fastapi_version: [ "latest" ]
+        fastapi_version: [ "all"]
 
     steps:
       - uses: actions/checkout@v5
@@ -41,12 +41,4 @@ jobs:
           PYDANTIC_V2: ${{ matrix.pydantic_v2 }}
           FASTAPI_VERSION: ${{ matrix.fastapi_version }}
         run: |
-          if [[ "$PYDANTIC_V2" == "false" ]]; then
-            uv run pip install "pydantic<2.0.0"
-          fi
-          
-          if [[ "$FASTAPI_VERSION" != "latest" ]]; then
-            uv run pip install "fastapi==$FASTAPI_VERSION"
-          fi
-          
-          uv run --no-project pytest tests
+          bash ./scripts/tests.sh

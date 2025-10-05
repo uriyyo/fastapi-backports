@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![FastAPI 0.118.0+](https://img.shields.io/badge/fastapi-0.118.0+-green.svg)](https://fastapi.tiangolo.com/)
+[![FastAPI 0.115.0+](https://img.shields.io/badge/fastapi-0.115.0+-green.svg)](https://fastapi.tiangolo.com/)
 
 A Python library that provides backports for FastAPI features, allowing you to use newer FastAPI functionality on older
 versions.
