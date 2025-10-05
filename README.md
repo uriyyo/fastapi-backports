@@ -20,9 +20,10 @@ This library includes backports for:
 **What this fixes:**
 
 ```python
+import fastapi_backports.apply  # noqa: F401
+
 from dataclasses import dataclass
-from fastapi_backports import FastAPI
-from fastapi import Query
+from fastapi import Query, FastAPI
 from typing import Annotated, Any
 
 @dataclass
@@ -60,9 +61,10 @@ async def get_items(
 **What this fixes:**
 
 ```python
+import fastapi_backports.apply  # noqa: F401
+
 from typing import Annotated
-from fastapi_backports import FastAPI
-from fastapi import Depends
+from fastapi import Depends, FastAPI
 
 async def get_current_user_id() -> int:
     return 123
