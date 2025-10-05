@@ -1,3 +1,1 @@
-import fastapi_backports
-
-fastapi_backports.backport()
+import fastapi_backports.apply  # noqa: F401

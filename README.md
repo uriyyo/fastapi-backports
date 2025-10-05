@@ -90,25 +90,24 @@ pip install fastapi-backports
 
 ### Basic Usage
 
-Simply replace your FastAPI imports with fastapi-backports imports:
+Import the backport module before using FastAPI:
 
 ```python
-# Instead of: from fastapi import FastAPI, APIRouter
-from fastapi_backports import FastAPI, APIRouter
+import fastapi_backports.apply  # noqa: F401
+from fastapi import FastAPI, APIRouter
 
 app = FastAPI()
-
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 ```
 
-The backports are automatically applied when you import `FastAPI` or `APIRouter` from `fastapi_backports`.
+The backports are automatically applied when you import `fastapi_backports.apply`.
 
 ### Manual Backport Control
 
-You can also manually control which backports to apply:
+For more control over when backports are applied:
 
 ```python
 import fastapi_backports
@@ -125,19 +124,4 @@ async def root():
     return {"message": "Hello World"}
 ```
 
-You can also apply specific backports only:
-
-```python
-import fastapi_backports
-from fastapi import FastAPI
-
-# Apply only specific backports
-fastapi_backports.backport(
-    multiple_query_models=True,
-    type_alias_type=False
-)
-
-app = FastAPI()
-```
-
-> **⚠️ Important**: When using manual backport control, always call `fastapi_backports.backport()` **before** creating your FastAPI application instance or defining any routes. The backports modify FastAPI's internal behavior and must be applied before FastAPI processes your route definitions.
+> **⚠️ Important**: Always call `fastapi_backports.backport()` **before** creating your FastAPI application instance or defining any routes. The backports modify FastAPI's internal behavior and must be applied before FastAPI processes your route definitions.

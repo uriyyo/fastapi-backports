@@ -1,6 +1,4 @@
-from typing import Iterable, Type
-
-from typing_extensions import NotRequired, TypedDict, Unpack
+from typing import Final, Iterable, Set, Type
 
 from ._backports import (
     BaseBackporter,
@@ -8,7 +6,7 @@ from ._backports import (
     type_alias_type,
 )
 
-_BACKPORTED = set()
+_BACKPORTED: Final[Set[str]] = set()
 
 
 def _run_backports(backports: Iterable[Type[BaseBackporter]]) -> None:
@@ -23,22 +21,13 @@ def _run_backports(backports: Iterable[Type[BaseBackporter]]) -> None:
         _BACKPORTED.add(_backport.label())
 
 
-class _AvailableBackports(TypedDict):
-    multiple_query_models: NotRequired[bool]
-    type_alias_type: NotRequired[bool]
-    annotated_forward_ref: NotRequired[bool]
-
-
-def _resolve_backports(**kwargs: Unpack[_AvailableBackports]) -> Iterable[Type[BaseBackporter]]:
-    if kwargs.get("multiple_query_models", True):
-        yield multiple_query_models.Backporter
-
-    if kwargs.get("type_alias_type", True):
-        yield type_alias_type.Backporter
-
-
-def backport(**kwargs: Unpack[_AvailableBackports]) -> None:
-    _run_backports(_resolve_backports(**kwargs))
+def backport() -> None:
+    _run_backports(
+        [
+            multiple_query_models.Backporter,
+            type_alias_type.Backporter,
+        ],
+    )
 
 
 __all__ = [
