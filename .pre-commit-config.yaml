@@ -5,7 +5,7 @@ repos:
         language: python
         name: ruff-format
         pass_filenames: false
-        entry: uv run ruff format fastapi_backports tests
+        entry: uv run ruff format fastapi_backports tests examples
 
   - repo: local
     hooks:
