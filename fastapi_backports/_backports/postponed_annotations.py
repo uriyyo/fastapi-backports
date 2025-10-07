@@ -1,12 +1,13 @@
 from contextlib import asynccontextmanager
 from functools import wraps
-from typing import Any, AsyncIterator, Iterable, Union
+from typing import Any, AsyncIterator, Iterable, Optional, Union
 from typing import ForwardRef as _Typing_ForwardRef
 
 from fastapi import FastAPI
 from fastapi import FastAPI as _FastAPI
 from fastapi._compat import ModelField, lenient_issubclass
 from fastapi.datastructures import DefaultPlaceholder
+from fastapi.dependencies import utils as _dependencies_utils
 from fastapi.dependencies.models import Dependant
 from fastapi.dependencies.utils import (
     _should_embed_body_fields,
@@ -183,6 +184,21 @@ def _create_overrides() -> Any:
     return _APIRoutePatched, _APIWebSocketRoutePatched, _FastAPIPatched
 
 
+_original_evaluate_forwardref = _dependencies_utils.evaluate_forwardref
+
+
+@wraps(_original_evaluate_forwardref)
+def evaluate_forwardref(
+    value: Any,
+    globalns: Optional[Any] = None,
+    localns: Optional[Any] = None,
+) -> Any:
+    try:
+        return _original_evaluate_forwardref(value, globalns, localns)
+    except (NameError, TypeError):
+        return value
+
+
 class Backporter(BaseBackporter):
     @classmethod
     def label(cls) -> str:
@@ -195,6 +211,8 @@ class Backporter(BaseBackporter):
         _FastAPI.__init__ = _FastAPIPatched.__init__  # type: ignore[assignment]
         _APIRoute.__init__ = _APIRoutePatched.__init__  # type: ignore[assignment]
         _APIWebSocketRoutePatched.__init__ = _APIWebSocketRoutePatched.__init__  # type: ignore[assignment]
+
+        _dependencies_utils.evaluate_forwardref = evaluate_forwardref  # type: ignore[assignment]
 
 
 __all__ = [
