@@ -1,6 +1,6 @@
 [project]
 name = "fastapi-backports"
-version = "0.1.1"
+version = "0.1.2"
 description = "Backports for FastAPI"
 authors = [
     { name = "Yurii Karabas", email = "1998uriyyo@gmail.com" },
