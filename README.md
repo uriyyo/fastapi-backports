@@ -26,17 +26,21 @@ from dataclasses import dataclass
 from fastapi import Query, FastAPI
 from typing import Annotated, Any
 
+
 @dataclass
 class FilterParams:
     category: str | None = None
     min_price: float | None = None
+
 
 @dataclass
 class PaginationParams:
     page: int = 1
     size: int = 10
 
+
 app = FastAPI()
+
 
 # ❌ Without backport: This would not work as expected
 @app.get("/items")
@@ -45,7 +49,6 @@ async def get_items(
     pagination: Annotated[PaginationParams, Query()],
 ) -> dict[str, Any]:
     return {"filters": filters, "pagination": pagination}
-
 
 # ✅ With backport: This works perfectly!
 # Query parameters are properly flattened and validated
@@ -66,14 +69,16 @@ import fastapi_backports.apply  # noqa: F401
 from typing import Annotated
 from fastapi import Depends, FastAPI
 
+
 async def get_current_user_id() -> int:
     return 123
+
 
 # PEP 695 style type alias (Python 3.12+)
 type UserId = Annotated[int, Depends(get_current_user_id)]
 
-
 app = FastAPI()
+
 
 # ❌ Without backport: FastAPI doesn't recognize the type alias properly
 # ✅ With backport: Type aliases work seamlessly in dependencies
@@ -135,6 +140,44 @@ async def get_items() -> dict[str, Any]:
 app.include_router(router)
 ```
 
+### 🔍 QUERY HTTP method support
+
+- **Issue**: [Will FastAPI support QUERY http method? "app.query"](https://github.com/fastapi/fastapi/issues/12965)
+- **Description**: Adds support for the QUERY HTTP method, allowing safe query operations with request bodies
+- **Benefits**: Enables complex queries with large payloads while maintaining REST semantics
+
+**What this fixes:**
+
+```python
+import fastapi_backports.apply  # noqa: F401
+
+from typing import Any
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+class SearchQuery(BaseModel):
+    filters: dict[str, Any]
+    sort_by: str | None = None
+    limit: int = 100
+
+app = FastAPI()
+
+# ❌ Without backport: QUERY method not supported
+# ✅ With backport: You can now use the QUERY HTTP method
+@app.query("/search")
+async def search_items(query: SearchQuery) -> dict[str, Any]:
+    return {
+        "results": ["item1", "item2", "item3"],
+        "filters_applied": query.filters,
+        "sorted_by": query.sort_by,
+        "total": 150
+    }
+
+# QUERY method allows complex search parameters in request body
+# while maintaining safe, idempotent semantics
+# Usage: QUERY /search with JSON body containing SearchQuery data
+```
+
 ## Installation
 
 ```bash
@@ -153,6 +196,7 @@ from fastapi import FastAPI, APIRouter
 
 app = FastAPI()
 
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
@@ -160,7 +204,8 @@ async def root():
 
 The backports are automatically applied when you import `fastapi_backports.apply`.
 
-> **💡 Note**: The `# noqa: F401` comment is needed to prevent linters from complaining about an "unused import". While the import appears unused, it actually applies the backports through side effects when imported.
+> **💡 Note**: The `# noqa: F401` comment is needed to prevent linters from complaining about an "unused import". While
+> the import appears unused, it actually applies the backports through side effects when imported.
 
 ### Manual Backport Control
 
@@ -176,9 +221,12 @@ fastapi_backports.backport()
 # Now create your app
 app = FastAPI()
 
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 ```
 
-> **⚠️ Important**: Always call `fastapi_backports.backport()` **before** creating your FastAPI application instance or defining any routes. The backports modify FastAPI's internal behavior and must be applied before FastAPI processes your route definitions.
+> **⚠️ Important**: Always call `fastapi_backports.backport()` **before** creating your FastAPI application instance or
+> defining any routes. The backports modify FastAPI's internal behavior and must be applied before FastAPI processes your
+> route definitions.
