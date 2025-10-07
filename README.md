@@ -57,8 +57,7 @@ async def get_items(
 
 ### 🏷️ PEP 695 Type Alias Support
 
-- **Issue
-  **: [Annotated dependencies are interpreted incorrectly when using PEP 695-style type alias](https://github.com/fastapi/fastapi/issues/10719)
+- **Issue**: [Annotated dependencies are interpreted incorrectly when using PEP 695-style type alias](https://github.com/fastapi/fastapi/issues/10719)
 - **Description**: Fixes handling of modern Python type aliases (PEP 695) in FastAPI dependencies
 - **Benefits**: Full compatibility with modern Python typing features
 
