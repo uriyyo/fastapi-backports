@@ -1,5 +1,5 @@
 import pytest
-from fastapi import status
+from fastapi import WebSocket, status
 from fastapi.testclient import TestClient
 from starlette.middleware import Middleware
 from starlette.types import ASGIApp
@@ -32,26 +32,39 @@ class TestRouteBackport:
     def client(self, app):
         return TestClient(app)
 
-    def test_route_middleware_base(self, app, client):
-        async def route():
-            return {"message": "Hello, World!"}
-
+    @pytest.mark.parametrize("path", ["/path1", "/path2"])
+    @pytest.mark.parametrize("method", ["get", "post", "put", "delete", "patch", "options", "head", "trace"])
+    def test_route_middleware_base(self, app, client, path, method):
         router = APIRouter(
             middleware=[Middleware(_add_header_middleware, "x-outer-middleware", "outer")],
         )
 
+        decorator = getattr(router, method)
+
+        @decorator(
+            "/path1",
+            middleware=[Middleware(_add_header_middleware, "x-inner-middleware", "inner")],
+        )
+        async def route():
+            return {"message": "Hello, World!"}
+
         router.add_api_route(
-            "/",
+            "/path2",
             route,
-            methods=["GET"],
+            methods=[method.upper()],
             middleware=[Middleware(_add_header_middleware, "x-inner-middleware", "inner")],
         )
 
         app.include_router(router)
 
-        response = client.get("/")
+        response = client.request(method, path)
         assert response.status_code == status.HTTP_200_OK
-        assert response.json() == {"message": "Hello, World!"}
+
+        if method == "head":
+            assert response.content == b""
+        else:
+            assert response.json() == {"message": "Hello, World!"}
+
         assert response.headers.get("x-inner-middleware") == "inner"
         assert response.headers.get("x-outer-middleware") == "outer"
 
@@ -88,3 +101,30 @@ class TestRouteBackport:
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == {"message": "Hello, World!"}
         assert response.headers.get("x-where") == "route, child-router, included-router, parent-router, app-router"
+
+    @pytest.mark.parametrize("path", ["/ws1", "/ws2"])
+    def test_websocket_route_middleware(self, app, client, path):
+        router = APIRouter(
+            middleware=[Middleware(_add_header_middleware, "x-outer-middleware", "outer")],
+        )
+
+        @router.websocket(
+            "/ws1",
+            middleware=[Middleware(_add_header_middleware, "x-inner-middleware", "inner")],
+        )
+        async def websocket_endpoint(websocket: WebSocket):
+            await websocket.accept()
+            await websocket.send_json({"message": "Hello, WebSocket!"})
+            await websocket.close()
+
+        router.add_api_websocket_route(
+            "/ws2",
+            websocket_endpoint,
+            middleware=[Middleware(_add_header_middleware, "x-inner-middleware", "inner")],
+        )
+
+        app.include_router(router)
+
+        with client.websocket_connect(path) as websocket:
+            data = websocket.receive_json()
+            assert data == {"message": "Hello, WebSocket!"}

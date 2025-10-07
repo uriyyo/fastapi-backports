@@ -22,6 +22,7 @@ classifiers = [
 ]
 dependencies = [
     "fastapi>=0.115.0",
+    "pytest-cov>=5.0.0",
 ]
 
 [project.urls]
@@ -58,10 +59,10 @@ ignore = [
     "SLF001", # allow access to private members
     "COM812", # will be handled by ruff format
     "PERF403", # ignore replacing with compehension
-    "B008",  # do not perform function calls in argument defaults
+    "B008", # do not perform function calls in argument defaults
     "TC002", # skip moving imports to TYPE_CHECKING block
     "TC003", # skip moving imports to TYPE_CHECKING block
-    "N802",  # ignore function name should be lowercase
+    "N802", # ignore function name should be lowercase
     "TRY003", # allow long exception message
     "PLR0912", # allow too many branches
     "PLR0913", # allow too many arguments
@@ -110,4 +111,22 @@ max-complexity = 10
 asyncio_default_fixture_loop_scope = "function"
 testpaths = [
     "tests",
+]
+addopts = [
+    "--cov=fastapi_backports",
+    "--cov-report=term-missing",
+]
+
+[tool.coverage.paths]
+source = ["fastapi_backports"]
+
+[tool.coverage.run]
+source = ["fastapi_backports"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "@abstractmethod",
+    "@overload",
+    "if TYPE_CHECKING:",
 ]

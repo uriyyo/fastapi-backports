@@ -159,7 +159,7 @@ class _PatchedAPIRouter(_APIRouter):
         return decorator
 
     @override
-    def add_websocket_route(
+    def add_api_websocket_route(
         self: APIRouter,
         path: str,
         endpoint: Callable[..., Any],
@@ -191,7 +191,7 @@ class _PatchedAPIRouter(_APIRouter):
         **kwargs: Any,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
-            self.add_websocket_route(path, func, **kwargs)
+            self.add_api_websocket_route(path, func, **kwargs)
             return func
 
         return decorator
