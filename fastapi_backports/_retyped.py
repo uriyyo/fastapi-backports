@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Sequence, Set, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Sequence, Set, Type, TypeVar, Union
 
 from fastapi import params
 from fastapi.applications import FastAPI as _FastAPI
@@ -392,6 +392,11 @@ if TYPE_CHECKING:
             dependencies: Optional[Sequence[params.Depends]] = None,
             middleware: Optional[Sequence[Middleware]] = None,
         ) -> Callable[[DecoratedCallable], DecoratedCallable]:
+            pass
+
+        _TLifespan = TypeVar("_TLifespan", bound=Lifespan)
+
+        def add_lifespan(self, lifespan: _TLifespan) -> _TLifespan:
             pass
 
     class APIRoute(_APIRoute):

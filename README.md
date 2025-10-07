@@ -218,6 +218,50 @@ class Potato:
 ```
 
 
+### 🔄 Multiple Lifespans Support
+
+- **Issue**: [Support multiple Lifespan in FastAPI app](https://github.com/fastapi/fastapi/discussions/9397)
+- **Description**: Enables adding multiple lifespan context managers to FastAPI applications and routers
+- **Benefits**: Better organization of startup/shutdown logic and modular lifespan management
+
+**What this fixes:**
+
+```python
+from contextlib import asynccontextmanager
+from typing import AsyncIterator, Any
+
+import fastapi_backports.apply  # noqa: F401
+
+from fastapi import FastAPI
+
+app = FastAPI()
+
+# ❌ Without backport: Only one lifespan context is supported
+# ✅ With backport: You can add multiple lifespan contexts
+
+@app.add_lifespan
+@asynccontextmanager
+async def database_lifespan(_app: FastAPI) -> AsyncIterator[dict[str, Any]]:
+    print("Starting database connection")
+    yield {"db": "connection"}
+    print("Closing database connection")
+
+
+@app.add_lifespan
+@asynccontextmanager
+async def cache_lifespan(_app: FastAPI) -> AsyncIterator[dict[str, Any]]:
+    print("Starting cache")
+    yield {"cache": "connection"}
+    print("Stopping cache")
+
+    
+@app.get("/")
+async def read_root():
+    return {"message": "Hello World"}
+
+# Both lifespans will be executed in order during startup/shutdown
+```
+
 ## Installation
 
 ```bash
