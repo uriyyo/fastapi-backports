@@ -45,8 +45,8 @@ app = FastAPI()
 # ❌ Without backport: This would not work as expected
 @app.get("/items")
 async def get_items(
-        filters: Annotated[FilterParams, Query()],
-        pagination: Annotated[PaginationParams, Query()],
+    filters: Annotated[FilterParams, Query()],
+    pagination: Annotated[PaginationParams, Query()],
 ) -> dict[str, Any]:
     return {"filters": filters, "pagination": pagination}
 
