@@ -58,6 +58,14 @@ ignore = [
     "SLF001", # allow access to private members
     "COM812", # will be handled by ruff format
     "PERF403", # ignore replacing with compehension
+    "B008",  # do not perform function calls in argument defaults
+    "TC002", # skip moving imports to TYPE_CHECKING block
+    "TC003", # skip moving imports to TYPE_CHECKING block
+    "N802",  # ignore function name should be lowercase
+    "TRY003", # allow long exception message
+    "PLR0912", # allow too many branches
+    "PLR0913", # allow too many arguments
+    "PLR0915", # allow too many statements
 
     # full rule exclude
     "D", # ignore docstrings
@@ -68,6 +76,7 @@ ignore = [
     "ARG", # ignore unused arguments
     "FBT", # ignore flake8-boolean-trap
     "EM", # ignore error message formatting
+    "UP", # ignore upgrade suggestions
 ]
 exclude = [
     ".bzr",

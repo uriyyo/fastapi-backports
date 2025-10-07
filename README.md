@@ -82,6 +82,59 @@ async def get_user(user_id: UserId):
     return {"user_id": user_id}
 ```
 
+### 🕵️ Add middleware parameter to APIRouter
+
+- **Issue**: [Add middleware parameter to APIRouter](https://github.com/fastapi/fastapi/pull/11010)
+- **Description**: Enables adding middleware directly to APIRouter instances and individual routes
+- **Benefits**: Better middleware organization and route-specific middleware support
+
+**What this fixes:**
+
+```python
+import fastapi_backports.apply  # noqa: F401
+
+from typing import Any
+
+from fastapi_backports import FastAPI, APIRouter
+from fastapi import Request
+from fastapi.middleware import Middleware
+from starlette.types import ASGIApp, Receive, Scope, Send
+
+
+def add_header_middleware(_app: ASGIApp, header_name: str, header_value: str) -> ASGIApp:
+    async def _middleware(scope: Scope, receive: Receive, send: Send) -> None:
+        async def send_wrapper(message):
+            if message["type"] == "http.response.start":
+                headers = message.setdefault("headers", [])
+                headers.append((header_name.encode(), header_value.encode()))
+            await send(message)
+
+        await _app(scope, receive, send_wrapper)
+
+    return _middleware
+
+
+app = FastAPI()
+
+# ❌ Without backport: APIRouter doesn't accept middleware parameter
+# ✅ With backport: You can now add middleware to routers
+router = APIRouter(
+    prefix="/api/v1",
+    middleware=[
+        Middleware(add_header_middleware, header_name="X-Custom-Header", header_value="Value")
+    ]
+)
+
+
+@router.get("/items")
+async def get_items() -> dict[str, Any]:
+    return {"items": ["item1", "item2"]}
+
+
+# Middleware will be applied to all routes in this router
+app.include_router(router)
+```
+
 ## Installation
 
 ```bash
