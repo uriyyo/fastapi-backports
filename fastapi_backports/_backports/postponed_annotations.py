@@ -133,6 +133,10 @@ def _recreate_route_dependant(route: _APIRouteType) -> _APIRouteType:
             )
         )
 
+    # make sure we keep any middleware applied to the route
+    for cls, _args, _kwargs in reversed(route.middleware or ()):
+        route.app = cls(route.app, *_args, **_kwargs)
+
     return route
 
 
