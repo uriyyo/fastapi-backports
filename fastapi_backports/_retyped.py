@@ -435,6 +435,7 @@ if TYPE_CHECKING:
 
     class APIWebSocketRoute(_APIWebSocketRoute):
         middleware: Optional[Sequence[Middleware]]
+        dependency_overrides_provider: Optional[Any]
 
         @override
         def __init__(
