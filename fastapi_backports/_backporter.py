@@ -2,6 +2,7 @@ from typing import Final, Iterable, Set, Type
 
 from ._backports import (
     BaseBackporter,
+    lifespan_decorator,
     multiple_query_models,
     postponed_annotations,
     query_method,
@@ -32,6 +33,7 @@ def backport() -> None:
             type_alias_type.Backporter,
             postponed_annotations.Backporter,
             query_method.Backporter,
+            lifespan_decorator.Backporter,
         ],
     )
 

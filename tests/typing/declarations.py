@@ -1,9 +1,18 @@
+from contextlib import asynccontextmanager
+from typing import Any, AsyncIterator, Dict
+
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi_backports import APIRouter, FastAPI
 
 app = FastAPI()
+
+
+@app.add_lifespan
+@asynccontextmanager
+async def app_lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    yield
 
 
 @app.get("/", middleware=[Middleware(CORSMiddleware)])
@@ -75,6 +84,12 @@ app.add_api_websocket_route(
 )
 
 router = APIRouter(middleware=[Middleware(CORSMiddleware)])
+
+
+@router.add_lifespan
+@asynccontextmanager
+async def router_lifespan(_router: APIRouter) -> AsyncIterator[Dict[str, Any]]:
+    yield {"key": 1}
 
 
 @router.get("/", middleware=[Middleware(CORSMiddleware)])
