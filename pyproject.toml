@@ -115,6 +115,8 @@ testpaths = [
 addopts = [
     "--cov=fastapi_backports",
     "--cov-report=term-missing",
+    "--cov-report=xml",
+    "--cov-append",
 ]
 
 [tool.coverage.paths]
