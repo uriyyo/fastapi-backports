@@ -254,7 +254,7 @@ async def cache_lifespan(_app: FastAPI) -> AsyncIterator[dict[str, Any]]:
     yield {"cache": "connection"}
     print("Stopping cache")
 
-    
+
 @app.get("/")
 async def read_root():
     return {"message": "Hello World"}
