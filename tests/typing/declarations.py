@@ -46,6 +46,11 @@ async def app_trace() -> None:
     pass
 
 
+@app.query("/", middleware=[Middleware(CORSMiddleware)])
+async def app_query() -> None:
+    pass
+
+
 @app.websocket("/", middleware=[Middleware(CORSMiddleware)])
 async def app_websocket() -> None:
     pass
@@ -109,6 +114,11 @@ async def router_head() -> None:
 
 @router.trace("/", middleware=[Middleware(CORSMiddleware)])
 async def router_trace() -> None:
+    pass
+
+
+@router.query("/", middleware=[Middleware(CORSMiddleware)])
+async def router_query() -> None:
     pass
 
 

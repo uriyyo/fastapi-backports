@@ -3,6 +3,7 @@ from typing import Final, Iterable, Set, Type
 from ._backports import (
     BaseBackporter,
     multiple_query_models,
+    query_method,
     route_middleware,
     type_alias_type,
 )
@@ -28,6 +29,7 @@ def backport() -> None:
             multiple_query_models.Backporter,
             type_alias_type.Backporter,
             route_middleware.Backporter,
+            query_method.Backporter,
         ],
     )
 
