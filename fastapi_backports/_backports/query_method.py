@@ -18,6 +18,8 @@ class _FastAPIWithQueryMethod(_FastAPI):
         return self.router.query(path, **kwargs)
 
 
+# TODO: Wait for https://github.com/swagger-api/swagger-ui/issues/10575 to be resolved
+# and then add OpenAPI support for QUERY method
 class Backporter(BaseBackporter):
     @classmethod
     def label(cls) -> str:
