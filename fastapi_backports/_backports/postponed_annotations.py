@@ -1,10 +1,12 @@
 from contextlib import asynccontextmanager
-from functools import partial, wraps
+from functools import wraps
 from typing import Any, AsyncIterator, Iterable, Union
 from typing import ForwardRef as _Typing_ForwardRef
 
+from fastapi import FastAPI
 from fastapi import FastAPI as _FastAPI
-from fastapi._compat import ModelField
+from fastapi._compat import ModelField, lenient_issubclass
+from fastapi.datastructures import DefaultPlaceholder
 from fastapi.dependencies.models import Dependant
 from fastapi.dependencies.utils import (
     _should_embed_body_fields,
@@ -12,17 +14,21 @@ from fastapi.dependencies.utils import (
     get_dependant,
     get_flat_dependant,
     get_parameterless_sub_dependant,
+    get_typed_return_annotation,
 )
 from fastapi.routing import (
-    APIRouter,
-    _merge_lifespan_context,
-    get_websocket_app,
-    websocket_session,
+    APIRoute as _APIRoute,
 )
 from fastapi.routing import (
     APIWebSocketRoute as _APIWebSocketRoute,
 )
+from fastapi.routing import (
+    _merge_lifespan_context,
+    get_websocket_app,
+    websocket_session,
+)
 from fastapi.utils import create_cloned_field, create_model_field
+from starlette.responses import Response
 from starlette.routing import BaseRoute
 from typing_extensions import ForwardRef as _TypingExt_ForwardRef
 from typing_extensions import TypeAlias, TypeIs
@@ -75,6 +81,13 @@ def _is_postponed_route_declaration(route: BaseRoute) -> TypeIs[_APIRouteType]:
 
 def _recreate_route_dependant(route: _APIRouteType) -> _APIRouteType:
     if isinstance(route, APIRoute):
+        if not getattr(route, "_custom_response_model", False):
+            return_annotation = get_typed_return_annotation(route.endpoint)
+            if lenient_issubclass(return_annotation, Response):
+                route.response_model = None
+            else:
+                route.response_model = return_annotation
+
         if route.response_model:
             response_name = "Response_" + route.unique_id
             route.response_field = create_model_field(
@@ -122,37 +135,52 @@ def _recreate_route_dependant(route: _APIRouteType) -> _APIRouteType:
     return route
 
 
-@asynccontextmanager
-async def _validate_postponed_routes(router: APIRouter, _: Any) -> AsyncIterator[None]:
-    for i, route in enumerate(router.routes):
+def _update_postponed_routes(app: FastAPI) -> None:
+    for i, route in enumerate(app.router.routes):
         if _is_postponed_route_declaration(route):
-            router.routes[i] = _recreate_route_dependant(route)
+            app.router.routes[i] = _recreate_route_dependant(route)
 
+
+@asynccontextmanager
+async def _validate_postponed_routes(app: FastAPI) -> AsyncIterator[None]:
+    _update_postponed_routes(app)
     yield
 
 
-_original_init = _FastAPI.__init__
+def _create_overrides() -> Any:
+    _original_init = _FastAPI.__init__
 
+    class _FastAPIPatched(_FastAPI):
+        @wraps(_original_init)
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            _original_init(self, *args, **kwargs)
 
-class _FastAPIPatched(_FastAPI):
-    @wraps(_original_init)
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        _original_init(self, *args, **kwargs)
+            self.router.lifespan_context = _merge_lifespan_context(
+                _validate_postponed_routes,
+                self.router.lifespan_context,
+            )
 
-        self.router.lifespan_context = _merge_lifespan_context(
-            partial(_validate_postponed_routes, self.router),
-            self.router.lifespan_context,
-        )
+    _original_websocket_init = _APIWebSocketRoute.__init__
 
+    class _APIWebSocketRoutePatched(_APIWebSocketRoute):
+        @wraps(_original_websocket_init)
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            _original_websocket_init(self, *args, **kwargs)
+            self.dependency_overrides_provider = kwargs.get("dependency_overrides_provider")
 
-_original_websocket_init = _APIWebSocketRoute.__init__
+    _original_route_init = _APIRoute.__init__
 
+    class _APIRoutePatched(_APIRoute):
+        @wraps(_original_route_init)
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            if "response_model" in kwargs:
+                self._custom_response_model = not isinstance(kwargs["response_model"], DefaultPlaceholder)
+            else:
+                self._custom_response_model = False
 
-class _APIWebSocketRoutePatched(_APIWebSocketRoute):
-    @wraps(_original_websocket_init)
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        _original_websocket_init(self, *args, **kwargs)
-        self.dependency_overrides_provider = kwargs.get("dependency_overrides_provider")
+            _original_route_init(self, *args, **kwargs)
+
+    return _APIRoutePatched, _APIWebSocketRoutePatched, _FastAPIPatched
 
 
 class Backporter(BaseBackporter):
@@ -162,7 +190,10 @@ class Backporter(BaseBackporter):
 
     @classmethod
     def backport(cls) -> None:
+        _APIRoutePatched, _APIWebSocketRoutePatched, _FastAPIPatched = _create_overrides()  # noqa: N806
+
         _FastAPI.__init__ = _FastAPIPatched.__init__  # type: ignore[assignment]
+        _APIRoute.__init__ = _APIRoutePatched.__init__  # type: ignore[assignment]
         _APIWebSocketRoutePatched.__init__ = _APIWebSocketRoutePatched.__init__  # type: ignore[assignment]
 
 

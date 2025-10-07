@@ -27,9 +27,9 @@ def _run_backports(backports: Iterable[Type[BaseBackporter]]) -> None:
 def backport() -> None:
     _run_backports(
         [
+            route_middleware.Backporter,
             multiple_query_models.Backporter,
             type_alias_type.Backporter,
-            route_middleware.Backporter,
             postponed_annotations.Backporter,
             query_method.Backporter,
         ],

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-import pytest
 from fastapi import Depends, status
 from fastapi.testclient import TestClient
 from typing_extensions import Annotated
@@ -31,12 +30,8 @@ class Potato:
 
 @skip_if_backport_not_needed(Backporter)
 class TestPostponedAnnotations:
-    @pytest.fixture
-    def client(self):
-        return TestClient(app)
-
-    def test_postponed_annotations(self, client) -> None:
-        with client:
+    def test_postponed_annotations(self) -> None:
+        with TestClient(app) as client:
             response = client.get("/")
 
             assert response.status_code == status.HTTP_200_OK
