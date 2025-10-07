@@ -178,6 +178,46 @@ async def search_items(query: SearchQuery) -> dict[str, Any]:
 # Usage: QUERY /search with JSON body containing SearchQuery data
 ```
 
+### 📝 Postponed Type Annotations Support
+
+- **Issue**: [Can't use Annotated with ForwardRef](https://github.com/fastapi/fastapi/issues/13056)
+- **Description**: Fixes handling of postponed type annotations (PEP 563) and forward references in FastAPI
+- **Benefits**: Enables proper type checking and dependency injection with complex type hierarchies
+
+**What this fixes:**
+
+```python
+from __future__ import annotations
+
+import fastapi_backports.apply  # noqa: F401
+
+from dataclasses import dataclass
+from typing import Annotated
+
+from fastapi import Depends, FastAPI
+
+app = FastAPI()
+
+
+# Forward reference to a class defined later
+def get_potato() -> Potato:
+    return Potato(color='red', size=10)
+
+
+# ❌ Without backport: ForwardRef causes issues with dependency injection
+# ✅ With backport: Forward references work seamlessly
+@app.get('/')
+async def read_root(potato: Annotated[Potato, Depends(get_potato)]) -> Potato:
+    return potato
+
+
+@dataclass
+class Potato:
+    color: str
+    size: int
+```
+
+
 ## Installation
 
 ```bash
