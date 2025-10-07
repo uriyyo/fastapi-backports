@@ -5,7 +5,7 @@
 [![FastAPI 0.115.0+](https://img.shields.io/badge/fastapi-0.115.0+-green.svg)](https://fastapi.tiangolo.com/)
 
 A Python library that provides backports for FastAPI features, allowing you to use newer FastAPI functionality on older
-versions.
+versions. This includes both unreleased fixes and experimental features based on FastAPI community discussions that might be included in future FastAPI releases.
 
 ## Features
 
