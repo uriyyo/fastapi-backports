@@ -217,7 +217,6 @@ class Potato:
     size: int
 ```
 
-
 ### 🔄 Multiple Lifespans Support
 
 - **Issue**: [Support multiple Lifespan in FastAPI app](https://github.com/fastapi/fastapi/discussions/9397)
@@ -314,12 +313,13 @@ async def root():
 
 > [!IMPORTANT]
 > Always call `fastapi_backports.backport()` **before** creating your FastAPI application instance or
-> defining any routes. The backports modify FastAPI's internal behavior and must be applied before FastAPI processes your
-> route definitions.
+> defining any routes. The backports modify FastAPI's internal behavior and must be applied before FastAPI processes 
+> your route definitions.
 
 ### Free Backport Control
 
-`import fastapi_backports.apply` 和 `fastapi_backports.backport()` 都会直接应用 fastapi_backports 中的所有 Backports，如果你想应用指定的 Backport，像下面这样做:
+Both `import fastapi_backports.apply` and `fastapi_backports.backport()` will directly apply all Backports in
+fastapi_backports. If you want to apply a specific Backport, do as follows:
 
 ```python
 import fastapi_backports
