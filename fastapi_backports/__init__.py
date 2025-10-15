@@ -10,7 +10,6 @@ else:
         from . import _retyped
 
         if name in _retyped.__all__:
-            backport()
             return getattr(_retyped, name)
 
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

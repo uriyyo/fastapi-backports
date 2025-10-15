@@ -50,10 +50,10 @@ def analyze_param(
     )
 
 
-class Backporter(BaseBackporter):
+class TypeAliasTypeBackporter(BaseBackporter):
     @classmethod
     def label(cls) -> str:
-        return "type_alias_type"
+        return "issues/10719"
 
     @classmethod
     def backport(cls) -> None:
@@ -61,5 +61,5 @@ class Backporter(BaseBackporter):
 
 
 __all__ = [
-    "Backporter",
+    "TypeAliasTypeBackporter",
 ]

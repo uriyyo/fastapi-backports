@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from pydantic import BaseModel
 from typing_extensions import Annotated
 
-from fastapi_backports._backports.multiple_query_models import Backporter
+from fastapi_backports._backports.multiple_query_models import MultipleQueryModelsBackporter
 from tests.backports.utils import skip_if_backport_not_needed
 
 
@@ -48,7 +48,7 @@ def add_routes(
     app.include_router(router)
 
 
-@skip_if_backport_not_needed(Backporter)
+@skip_if_backport_not_needed(MultipleQueryModelsBackporter)
 class TestMultipleQueryParams:
     @pytest.fixture
     def app(self) -> FastAPI:
