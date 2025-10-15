@@ -288,7 +288,8 @@ async def root():
 
 The backports are automatically applied when you import `fastapi_backports.apply`.
 
-> **💡 Note**: The `# noqa: F401` comment is needed to prevent linters from complaining about an "unused import". While
+> [!NOTE]
+> The `# noqa: F401` comment is needed to prevent linters from complaining about an "unused import". While
 > the import appears unused, it actually applies the backports through side effects when imported.
 
 ### Manual Backport Control
@@ -311,6 +312,32 @@ async def root():
     return {"message": "Hello World"}
 ```
 
-> **⚠️ Important**: Always call `fastapi_backports.backport()` **before** creating your FastAPI application instance or
+> [!IMPORTANT]
+> Always call `fastapi_backports.backport()` **before** creating your FastAPI application instance or
 > defining any routes. The backports modify FastAPI's internal behavior and must be applied before FastAPI processes your
 > route definitions.
+
+### Free Backport Control
+
+`import fastapi_backports.apply` 和 `fastapi_backports.backport()` 都会直接应用 fastapi_backports 中的所有 Backports，如果你想应用指定的 Backport，像下面这样做:
+
+```python
+import fastapi_backports
+from fastapi import FastAPI
+
+# ⚠️ IMPORTANT: Apply backports BEFORE creating FastAPI app or routes
+fastapi_backports.backport(
+    backports=[
+        fastapi_backports.MultipleQueryModelsBackporter,
+        fastapi_backports.TypeAliasTypeBackporter,
+    ]
+)
+
+# Now create your app
+app = FastAPI()
+
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+```
