@@ -3,16 +3,16 @@ from fastapi import Depends, FastAPI, status
 from starlette.testclient import TestClient
 from typing_extensions import Annotated
 
-from fastapi_backports._backports.type_alias_type import Backporter
+from fastapi_backports._backports.type_alias_type import TypeAliasTypeBackporter
 from tests.backports.utils import require_python_3_12, skip_if_backport_not_needed
 
 pytestmark = pytest.mark.skipif(
-    not Backporter.needs_backport(),
+    not TypeAliasTypeBackporter.needs_backport(),
     reason="TypeAliasType backport not needed, skipping tests",
 )
 
 
-@skip_if_backport_not_needed(Backporter)
+@skip_if_backport_not_needed(TypeAliasTypeBackporter)
 @require_python_3_12
 class TestTypeAliasType:
     def test_type_alias_type_backport(self) -> None:
