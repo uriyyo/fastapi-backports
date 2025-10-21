@@ -20,10 +20,10 @@ class _FastAPIWithQueryMethod(_FastAPI):
 
 # TODO: Wait for https://github.com/swagger-api/swagger-ui/issues/10575 to be resolved
 # and then add OpenAPI support for QUERY method
-class Backporter(BaseBackporter):
+class QueryMethodBackporter(BaseBackporter):
     @classmethod
     def label(cls) -> str:
-        return "query_method"
+        return "issues/12965"
 
     @classmethod
     def backport(cls) -> None:
@@ -34,5 +34,5 @@ class Backporter(BaseBackporter):
 
 
 __all__ = [
-    "Backporter",
+    "QueryMethodBackporter",
 ]

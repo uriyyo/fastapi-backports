@@ -91,10 +91,10 @@ def request_params_to_args(
     return values, errors
 
 
-class Backporter(BaseBackporter):
+class MultipleQueryModelsBackporter(BaseBackporter):
     @classmethod
     def label(cls) -> str:
-        return "multiple_query_models"
+        return "discussions/12212"
 
     @classmethod
     def backport(cls) -> None:
@@ -108,5 +108,5 @@ class Backporter(BaseBackporter):
 
 
 __all__ = [
-    "Backporter",
+    "MultipleQueryModelsBackporter",
 ]
