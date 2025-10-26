@@ -486,7 +486,7 @@ if TYPE_CHECKING:
             pass
 
     class FastAPI(_CommonRouterMethodsMixin, _FastAPI):
-        pass
+        router: APIRouter
 else:
     from fastapi import FastAPI
     from fastapi.routing import APIRoute, APIRouter, APIWebSocketRoute

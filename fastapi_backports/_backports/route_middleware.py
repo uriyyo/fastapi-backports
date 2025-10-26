@@ -68,7 +68,7 @@ class _PatchedAPIRouter(_APIRouter):
 
     @override
     def add_api_route(
-        self: APIRouter,
+        self,
         path: str,
         endpoint: Callable[..., Any],
         *,
@@ -148,7 +148,7 @@ class _PatchedAPIRouter(_APIRouter):
 
     @override
     def api_route(
-        self: APIRouter,
+        self,
         path: str,
         **kwargs: Any,
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
@@ -160,7 +160,7 @@ class _PatchedAPIRouter(_APIRouter):
 
     @override
     def add_api_websocket_route(
-        self: APIRouter,
+        self,
         path: str,
         endpoint: Callable[..., Any],
         name: Optional[str] = None,

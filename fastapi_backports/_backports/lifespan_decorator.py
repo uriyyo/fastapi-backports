@@ -1,7 +1,8 @@
 from fastapi import APIRouter as _APIRouter
-from fastapi import FastAPI as _FastAPI
 from fastapi.routing import _merge_lifespan_context
 from starlette.types import Lifespan
+
+from fastapi_backports._retyped import FastAPI as _FastAPI
 
 from ._base import BaseBackporter
 

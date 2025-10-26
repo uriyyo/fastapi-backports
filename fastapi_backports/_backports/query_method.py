@@ -1,9 +1,10 @@
 from typing import Callable
 
 from fastapi import APIRouter as _APIRouter
-from fastapi import FastAPI as _FastAPI
 from fastapi.openapi.constants import METHODS_WITH_BODY
 from fastapi.types import DecoratedCallable
+
+from fastapi_backports._retyped import FastAPI as _FastAPI
 
 from ._base import BaseBackporter
 
