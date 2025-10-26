@@ -203,10 +203,10 @@ def evaluate_forwardref(
         return value
 
 
-class Backporter(BaseBackporter):
+class PostponedAnnotationsBackporter(BaseBackporter):
     @classmethod
     def label(cls) -> str:
-        return "postponed_annotations"
+        return "issues/13056"
 
     @classmethod
     def backport(cls) -> None:
@@ -220,5 +220,5 @@ class Backporter(BaseBackporter):
 
 
 __all__ = [
-    "Backporter",
+    "PostponedAnnotationsBackporter",
 ]

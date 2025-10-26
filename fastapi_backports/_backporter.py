@@ -1,14 +1,14 @@
-from typing import Final, Iterable, Set, Type
+from typing import Final, Iterable, Optional, Set, Type
 
 from ._backports import (
     BaseBackporter,
-    lifespan_decorator,
-    multiple_query_models,
-    postponed_annotations,
-    query_method,
-    route_middleware,
-    type_alias_type,
 )
+from ._backports.lifespan_decorator import LifespanDecoratorBackporter
+from ._backports.multiple_query_models import MultipleQueryModelsBackporter
+from ._backports.postponed_annotations import PostponedAnnotationsBackporter
+from ._backports.query_method import QueryMethodBackporter
+from ._backports.route_middleware import RouteMiddlewareBackporter
+from ._backports.type_alias_type import TypeAliasTypeBackporter
 
 _BACKPORTED: Final[Set[str]] = set()
 
@@ -25,17 +25,20 @@ def _run_backports(backports: Iterable[Type[BaseBackporter]]) -> None:
         _BACKPORTED.add(_backport.label())
 
 
-def backport() -> None:
-    _run_backports(
-        [
-            route_middleware.Backporter,
-            multiple_query_models.Backporter,
-            type_alias_type.Backporter,
-            postponed_annotations.Backporter,
-            query_method.Backporter,
-            lifespan_decorator.Backporter,
-        ],
-    )
+def backport(backports: Optional[Iterable[Type[BaseBackporter]]] = None) -> None:
+    if not backports:
+        _run_backports(
+            [
+                RouteMiddlewareBackporter,
+                MultipleQueryModelsBackporter,
+                TypeAliasTypeBackporter,
+                PostponedAnnotationsBackporter,
+                QueryMethodBackporter,
+                LifespanDecoratorBackporter,
+            ],
+        )
+    else:
+        _run_backports(backports)
 
 
 __all__ = [

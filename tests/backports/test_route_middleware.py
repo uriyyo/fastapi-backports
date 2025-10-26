@@ -5,7 +5,7 @@ from starlette.middleware import Middleware
 from starlette.types import ASGIApp
 
 from fastapi_backports import APIRouter, FastAPI
-from fastapi_backports._backports.route_middleware import Backporter
+from fastapi_backports._backports.route_middleware import RouteMiddlewareBackporter
 from tests.backports.utils import skip_if_backport_not_needed
 
 
@@ -22,7 +22,7 @@ def _add_header_middleware(app: ASGIApp, header_name: str, header_value: str) ->
     return middleware
 
 
-@skip_if_backport_not_needed(Backporter)
+@skip_if_backport_not_needed(RouteMiddlewareBackporter)
 class TestRouteBackport:
     @pytest.fixture
     def app(self):

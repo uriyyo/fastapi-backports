@@ -3,11 +3,11 @@ from contextlib import asynccontextmanager
 from fastapi.testclient import TestClient
 
 from fastapi_backports import APIRouter, FastAPI
-from fastapi_backports._backports.lifespan_decorator import Backporter
+from fastapi_backports._backports.lifespan_decorator import LifespanDecoratorBackporter
 from tests.backports.utils import skip_if_backport_not_needed
 
 
-@skip_if_backport_not_needed(Backporter)
+@skip_if_backport_not_needed(LifespanDecoratorBackporter)
 class TestLifespanDecorator:
     def test_lifespan_decorator(self):
         @asynccontextmanager

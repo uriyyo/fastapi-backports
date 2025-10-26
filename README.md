@@ -217,7 +217,6 @@ class Potato:
     size: int
 ```
 
-
 ### 🔄 Multiple Lifespans Support
 
 - **Issue**: [Support multiple Lifespan in FastAPI app](https://github.com/fastapi/fastapi/discussions/9397)
@@ -288,7 +287,8 @@ async def root():
 
 The backports are automatically applied when you import `fastapi_backports.apply`.
 
-> **💡 Note**: The `# noqa: F401` comment is needed to prevent linters from complaining about an "unused import". While
+> [!NOTE]
+> The `# noqa: F401` comment is needed to prevent linters from complaining about an "unused import". While
 > the import appears unused, it actually applies the backports through side effects when imported.
 
 ### Manual Backport Control
@@ -311,6 +311,33 @@ async def root():
     return {"message": "Hello World"}
 ```
 
-> **⚠️ Important**: Always call `fastapi_backports.backport()` **before** creating your FastAPI application instance or
-> defining any routes. The backports modify FastAPI's internal behavior and must be applied before FastAPI processes your
-> route definitions.
+> [!IMPORTANT]
+> Always call `fastapi_backports.backport()` **before** creating your FastAPI application instance or
+> defining any routes. The backports modify FastAPI's internal behavior and must be applied before FastAPI processes 
+> your route definitions.
+
+### Free Backport Control
+
+Both `import fastapi_backports.apply` and `fastapi_backports.backport()` will directly apply all Backports in
+fastapi_backports. If you want to apply a specific Backport, do as follows:
+
+```python
+import fastapi_backports
+from fastapi import FastAPI
+
+# ⚠️ IMPORTANT: Apply backports BEFORE creating FastAPI app or routes
+fastapi_backports.backport(
+    backports=[
+        fastapi_backports.MultipleQueryModelsBackporter,
+        fastapi_backports.TypeAliasTypeBackporter,
+    ]
+)
+
+# Now create your app
+app = FastAPI()
+
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+```

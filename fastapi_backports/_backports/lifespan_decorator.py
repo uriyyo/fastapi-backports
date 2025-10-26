@@ -20,10 +20,10 @@ class _FastAPIWithLifespan(_FastAPI):
         return self.router.add_lifespan(lifespan)
 
 
-class Backporter(BaseBackporter):
+class LifespanDecoratorBackporter(BaseBackporter):
     @classmethod
     def label(cls) -> str:
-        return "lifespan_decorator"
+        return "discussions/9397"
 
     @classmethod
     def backport(cls) -> None:
@@ -32,5 +32,5 @@ class Backporter(BaseBackporter):
 
 
 __all__ = [
-    "Backporter",
+    "LifespanDecoratorBackporter",
 ]

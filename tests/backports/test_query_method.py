@@ -4,11 +4,11 @@ from starlette.testclient import TestClient
 from typing_extensions import Annotated
 
 from fastapi_backports import APIRouter, FastAPI
-from fastapi_backports._backports.query_method import Backporter
+from fastapi_backports._backports.query_method import QueryMethodBackporter
 from tests.backports.utils import skip_if_backport_not_needed
 
 
-@skip_if_backport_not_needed(Backporter)
+@skip_if_backport_not_needed(QueryMethodBackporter)
 class TestQueryMethod:
     @pytest.fixture
     def app(self):
