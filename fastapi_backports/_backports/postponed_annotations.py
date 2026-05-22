@@ -28,7 +28,7 @@ from fastapi.routing import (
     get_websocket_app,
     websocket_session,
 )
-from fastapi.utils import create_cloned_field, create_model_field
+from fastapi.utils import create_model_field
 from starlette.responses import Response
 from starlette.routing import BaseRoute
 from typing_extensions import ForwardRef as _TypingExt_ForwardRef
@@ -96,11 +96,8 @@ def _recreate_route_dependant(route: _APIRouteType) -> _APIRouteType:
                 type_=route.response_model,
                 mode="serialization",
             )
-
-            route.secure_cloned_response_field = create_cloned_field(route.response_field)
         else:
             route.response_field = None
-            route.secure_cloned_response_field = None
 
         route.dependant = get_dependant(path=route.path_format, call=route.endpoint)
         for depends in route.dependencies[::-1]:
