@@ -14,7 +14,7 @@ except ImportError:
 
 
 try:
-    from typing import TypeAliasType as _BuiltinTypeAliasType  # type: ignore[unresolved-import]
+    from typing import TypeAliasType as _BuiltinTypeAliasType  # type: ignore[ty:unresolved-import]
 except ImportError:
 
     class _BuiltinTypeAliasType:  # type: ignore[misc]
@@ -57,7 +57,7 @@ class TypeAliasTypeBackporter(BaseBackporter):
 
     @classmethod
     def backport(cls) -> None:
-        _deps_utils.analyze_param = analyze_param  # type: ignore[assignment]
+        _deps_utils.analyze_param = analyze_param  # type: ignore[ty:invalid-assignment]
 
 
 __all__ = [
