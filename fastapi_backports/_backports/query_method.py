@@ -28,8 +28,8 @@ class QueryMethodBackporter(BaseBackporter):
 
     @classmethod
     def backport(cls) -> None:
-        _FastAPI.query = _FastAPIWithQueryMethod.query  # type: ignore[assignment]
-        _APIRouter.query = _APIRouterWithQueryMethod.query  # type: ignore[assignment]
+        _FastAPI.query = _FastAPIWithQueryMethod.query  # type: ignore[ty:invalid-assignment]
+        _APIRouter.query = _APIRouterWithQueryMethod.query  # type: ignore[ty:unresolved-attribute]
 
         METHODS_WITH_BODY.add("QUERY")
 

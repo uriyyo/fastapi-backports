@@ -6,10 +6,11 @@ from fastapi.dependencies.utils import (
     _get_multidict_value,
     _validate_value_with_model_field,
     get_cached_model_fields,
-    lenient_issubclass,
 )
 from pydantic import BaseModel
 from starlette.datastructures import Headers, QueryParams
+
+from fastapi_backports._utils import check_field_is_subclass, get_field_type
 
 from ._base import BaseBackporter
 
@@ -20,8 +21,8 @@ def _get_flat_fields_from_params(fields: List[ModelField]) -> List[ModelField]:
 
     fields_to_extract = []
     for f in fields:
-        if lenient_issubclass(f.type_, BaseModel):
-            fields_to_extract.extend(get_cached_model_fields(f.type_))
+        if check_field_is_subclass(f, BaseModel):
+            fields_to_extract.extend(get_cached_model_fields(get_field_type(f)))
         else:
             fields_to_extract.append(f)
     return fields_to_extract
@@ -44,8 +45,8 @@ def request_params_to_args(
     fields_to_extract = [
         (field, cached_field)
         for field in fields
-        if lenient_issubclass(field.type_, BaseModel)
-        for cached_field in get_cached_model_fields(field.type_)
+        if check_field_is_subclass(field, BaseModel)
+        for cached_field in get_cached_model_fields(get_field_type(field))
     ]
 
     processed_keys = set()
@@ -76,7 +77,7 @@ def request_params_to_args(
         field_info = field.field_info
         assert isinstance(field_info, params.Param), "Params must be subclasses of Param"
 
-        if lenient_issubclass(field.type_, BaseModel):
+        if check_field_is_subclass(field, BaseModel):
             loc: Tuple[str, ...] = (field_info.in_.value,)
             v_, errors_ = _validate_value_with_model_field(field=field, value=params_to_process, values=values, loc=loc)
         else:
@@ -101,10 +102,10 @@ class MultipleQueryModelsBackporter(BaseBackporter):
         from fastapi.dependencies import utils as _deps_utils
         from fastapi.openapi import utils as _openapi_utils
 
-        _deps_utils.request_params_to_args = request_params_to_args  # type: ignore[invalid-assignment]
-        _deps_utils._get_flat_fields_from_params = _get_flat_fields_from_params  # type: ignore[invalid-assignment]
+        _deps_utils.request_params_to_args = request_params_to_args  # type: ignore[ty:invalid-assignment]
+        _deps_utils._get_flat_fields_from_params = _get_flat_fields_from_params  # type: ignore[ty:invalid-assignment]
 
-        _openapi_utils._get_flat_fields_from_params = _get_flat_fields_from_params  # type: ignore[invalid-assignment]
+        _openapi_utils._get_flat_fields_from_params = _get_flat_fields_from_params  # type: ignore[ty:invalid-assignment]
 
 
 __all__ = [

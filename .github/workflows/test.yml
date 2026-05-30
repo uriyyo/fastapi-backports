@@ -15,13 +15,29 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: "py${{ matrix.python-version }}; pydantic-${{ matrix.pydantic_v2 == 'true' && 'v2' || 'v1' }}; fastapi-${{ matrix.fastapi_version }}"
+    name: "py${{ matrix.python-version }}; pydantic-${{ matrix.pydantic_v2 == 'true' && 'v2' || 'v1' }}; fastapi-${{ matrix.fastapi_version }}${{ matrix.run_typing == 'true' && '; typing' || '' }}"
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
-        pydantic_v2: [ "true", "false" ]
-        fastapi_version: [ "all"]
+        include:
+          - { python-version: "3.10", pydantic_v2: "true", fastapi_version: "current" }
+          - { python-version: "3.11", pydantic_v2: "true", fastapi_version: "current" }
+          - { python-version: "3.12", pydantic_v2: "true", fastapi_version: "current" }
+          - { python-version: "3.13", pydantic_v2: "true", fastapi_version: "current" }
+          - { python-version: "3.14", pydantic_v2: "true", fastapi_version: "current" }
+
+          - { python-version: "3.8",  pydantic_v2: "false", fastapi_version: "0.115.0" }
+          - { python-version: "3.9",  pydantic_v2: "false", fastapi_version: "0.115.0" }
+          - { python-version: "3.10", pydantic_v2: "false", fastapi_version: "0.115.0" }
+          - { python-version: "3.8",  pydantic_v2: "true",  fastapi_version: "0.115.0" }
+          - { python-version: "3.9",  pydantic_v2: "true",  fastapi_version: "0.115.0" }
+          - { python-version: "3.10", pydantic_v2: "true",  fastapi_version: "0.115.0" }
+          - { python-version: "3.12", pydantic_v2: "true",  fastapi_version: "0.115.0" }
+          - { python-version: "3.12", pydantic_v2: "true",  fastapi_version: "0.128.2" }
+          - { python-version: "3.12", pydantic_v2: "true",  fastapi_version: "0.128.3" }
+          - { python-version: "3.12", pydantic_v2: "true",  fastapi_version: "0.136.3" }
+
+          - { python-version: "3.10", pydantic_v2: "true", fastapi_version: "0.136.3", run_typing: "true" }
 
     steps:
       - uses: actions/checkout@v6
@@ -43,6 +59,7 @@ jobs:
           PY_VERSION: ${{ matrix.python-version }}
           PYDANTIC_V2: ${{ matrix.pydantic_v2 }}
           FASTAPI_VERSION: ${{ matrix.fastapi_version }}
+          RUN_MODULE_TYPING: ${{ matrix.run_typing || 'false' }}
         run: |
           bash ./scripts/test.sh
 

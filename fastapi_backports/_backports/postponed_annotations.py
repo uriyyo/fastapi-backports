@@ -28,13 +28,14 @@ from fastapi.routing import (
     get_websocket_app,
     websocket_session,
 )
-from fastapi.utils import create_cloned_field, create_model_field
+from fastapi.utils import create_model_field
 from starlette.responses import Response
 from starlette.routing import BaseRoute
 from typing_extensions import ForwardRef as _TypingExt_ForwardRef
 from typing_extensions import TypeAlias, TypeIs
 
 from fastapi_backports._retyped import APIRoute, APIWebSocketRoute
+from fastapi_backports._utils import check_field_is_instance, create_cloned_field
 
 from ._base import BaseBackporter
 
@@ -43,6 +44,7 @@ try:
 except ImportError:
     from starlette.routing import request_response
 
+
 _APIRouteType: TypeAlias = Union[APIRoute, APIWebSocketRoute]
 
 _forward_refs_type = (_Typing_ForwardRef, _TypingExt_ForwardRef)
@@ -50,7 +52,7 @@ _forward_refs_type = (_Typing_ForwardRef, _TypingExt_ForwardRef)
 
 def _is_postponed_model_field(field: ModelField) -> bool:
     try:
-        return isinstance(field.type_, _forward_refs_type)
+        return check_field_is_instance(field, _forward_refs_type)
     except TypeError:
         return False
 
@@ -97,10 +99,10 @@ def _recreate_route_dependant(route: _APIRouteType) -> _APIRouteType:
                 mode="serialization",
             )
 
-            route.secure_cloned_response_field = create_cloned_field(route.response_field)
+            route.secure_cloned_response_field = create_cloned_field(route.response_field)  # type: ignore[ty:unresolved-attribute]
         else:
             route.response_field = None
-            route.secure_cloned_response_field = None
+            route.secure_cloned_response_field = None  # type: ignore[ty:unresolved-attribute]
 
         route.dependant = get_dependant(path=route.path_format, call=route.endpoint)
         for depends in route.dependencies[::-1]:
@@ -212,11 +214,11 @@ class PostponedAnnotationsBackporter(BaseBackporter):
     def backport(cls) -> None:
         _APIRoutePatched, _APIWebSocketRoutePatched, _FastAPIPatched = _create_overrides()  # noqa: N806
 
-        _FastAPI.__init__ = _FastAPIPatched.__init__  # type: ignore[assignment]
-        _APIRoute.__init__ = _APIRoutePatched.__init__  # type: ignore[assignment]
-        _APIWebSocketRoutePatched.__init__ = _APIWebSocketRoutePatched.__init__  # type: ignore[assignment]
+        _FastAPI.__init__ = _FastAPIPatched.__init__
+        _APIRoute.__init__ = _APIRoutePatched.__init__
+        _APIWebSocketRoutePatched.__init__ = _APIWebSocketRoutePatched.__init__
 
-        _dependencies_utils.evaluate_forwardref = evaluate_forwardref  # type: ignore[assignment]
+        _dependencies_utils.evaluate_forwardref = evaluate_forwardref  # type: ignore[ty:invalid-assignment]
 
 
 __all__ = [

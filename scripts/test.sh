@@ -2,6 +2,16 @@
 
 PYDANTIC_V2=${PYDANTIC_V2:-false}
 FASTAPI_VERSION=${FASTAPI_VERSION:-"current"}
+RUN_MODULE_TYPING=${RUN_MODULE_TYPING:-false}
+
+# The module typing tests (marked "module_typing") run "ty" against the whole
+# package and are version-specific, so they are excluded by default and run only
+# on a dedicated job for the latest FastAPI version.
+if [[ "$RUN_MODULE_TYPING" == "true" ]]; then
+    PYTEST_MARKER="module_typing"
+else
+    PYTEST_MARKER="not module_typing"
+fi
 
 if [[ "$PYDANTIC_V2" == "true" ]]; then
     echo "Using Pydantic v2"
@@ -13,29 +23,6 @@ fi
 VERSIONS_TO_TEST=()
 if [[ "$FASTAPI_VERSION" == "current" ]]; then
     VERSIONS_TO_TEST+=("current")
-elif [[ "$FASTAPI_VERSION" == "all" ]]; then
-    VERSIONS_TO_TEST+=(
-      "0.118.0"
-      "0.117.1"
-      "0.117.0"
-      "0.116.1"
-      "0.116.0"
-      "0.115.14"
-      "0.115.13"
-      "0.115.12"
-      "0.115.11"
-      "0.115.10"
-      "0.115.9"
-      "0.115.8"
-      "0.115.7"
-      "0.115.6"
-      "0.115.5"
-      "0.115.4"
-      "0.115.3"
-      "0.115.2"
-      "0.115.1"
-      "0.115.0"
-    )
 else
     VERSIONS_TO_TEST+=("$FASTAPI_VERSION")
 fi
@@ -47,7 +34,7 @@ for version in "${VERSIONS_TO_TEST[@]}"; do
         uv pip install "fastapi==$version"
     fi
 
-    uv run --no-project pytest tests || {
+    uv run --no-project pytest tests -m "$PYTEST_MARKER" || {
       echo "Tests failed with FastAPI version: $version"
       exit 1
     }

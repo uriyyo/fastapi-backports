@@ -28,8 +28,8 @@ class LifespanDecoratorBackporter(BaseBackporter):
 
     @classmethod
     def backport(cls) -> None:
-        _APIRouter.add_lifespan = _APIRouterWithLifespan.add_lifespan  # type: ignore[unresolved-attribute]
-        _FastAPI.add_lifespan = _FastAPIWithLifespan.add_lifespan  # type: ignore[unresolved-attribute]
+        _APIRouter.add_lifespan = _APIRouterWithLifespan.add_lifespan  # type: ignore[ty:unresolved-attribute]
+        _FastAPI.add_lifespan = _FastAPIWithLifespan.add_lifespan  # type: ignore[ty:invalid-assignment]
 
 
 __all__ = [

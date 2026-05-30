@@ -67,7 +67,7 @@ class _PatchedAPIRouter(_APIRouter):
         return self.api_route(*args, methods=["TRACE"], **kwargs)
 
     @override
-    def add_api_route(
+    def add_api_route(  # type: ignore[ty:invalid-method-override]
         self,
         path: str,
         endpoint: Callable[..., Any],
@@ -141,8 +141,8 @@ class _PatchedAPIRouter(_APIRouter):
             dependency_overrides_provider=self.dependency_overrides_provider,
             callbacks=current_callbacks,
             openapi_extra=openapi_extra,
-            generate_unique_id_function=current_generate_unique_id,
-            middleware=current_middleware,
+            generate_unique_id_function=current_generate_unique_id,  # type: ignore[ty:invalid-argument-type]
+            middleware=current_middleware,  # type: ignore[ty:unknown-argument]
         )
         self.routes.append(route)
 
@@ -185,7 +185,7 @@ class _PatchedAPIRouter(_APIRouter):
         self.routes.append(route)
 
     @override
-    def websocket(
+    def websocket(  # type: ignore[ty:invalid-method-override]
         self: APIRouter,
         path: str,
         **kwargs: Any,
@@ -197,7 +197,7 @@ class _PatchedAPIRouter(_APIRouter):
         return decorator
 
     @override
-    def include_router(
+    def include_router(  # type: ignore[ty:invalid-method-override]
         self: APIRouter,
         router: APIRouter,
         *,
@@ -375,14 +375,14 @@ class RouteMiddlewareBackporter(BaseBackporter):
 
     @classmethod
     def backport(cls) -> None:
-        _APIRoute.middleware = None  # type: ignore[unresolved-attribute]
-        _APIRoute.__init__ = _add_middleware_to_init(_APIRoute_init, "app")  # type: ignore[assignment]
+        _APIRoute.middleware = None  # type: ignore[ty:unresolved-attribute]
+        _APIRoute.__init__ = _add_middleware_to_init(_APIRoute_init, "app")  # type: ignore[ty:invalid-assignment]
 
-        _APIWebSocketRoute.middleware = None  # type: ignore[unresolved-attribute]
-        _APIWebSocketRoute.__init__ = _add_middleware_to_init(_APIWebSocketRoute_init, "app")  # type: ignore[assignment]
+        _APIWebSocketRoute.middleware = None  # type: ignore[ty:unresolved-attribute]
+        _APIWebSocketRoute.__init__ = _add_middleware_to_init(_APIWebSocketRoute_init, "app")  # type: ignore[ty:invalid-assignment]
 
-        _APIRouter.middleware = None  # type: ignore[unresolved-attribute]
-        _APIRouter.__init__ = _add_middleware_to_init(_APIRouter_init, "middleware_stack", wrap=False)  # type: ignore[assignment]
+        _APIRouter.middleware = None  # type: ignore[ty:unresolved-attribute]
+        _APIRouter.__init__ = _add_middleware_to_init(_APIRouter_init, "middleware_stack", wrap=False)  # type: ignore[ty:invalid-assignment]
 
         # copy all overridden methods from _PatchedAPIRouter to original APIRouter and FastAPI
         for name, method in _PatchedAPIRouter.__dict__.items():
