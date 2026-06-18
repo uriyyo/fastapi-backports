@@ -40,7 +40,7 @@ jobs:
           - { python-version: "3.10", pydantic_v2: "true", fastapi_version: "0.136.3", run_typing: "true" }
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
