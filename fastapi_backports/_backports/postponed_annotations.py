@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from functools import wraps
-from typing import Any, AsyncIterator, Iterable, Optional, Union
+from typing import Any, AsyncIterator, Iterable, List, Optional, Union
 from typing import ForwardRef as _Typing_ForwardRef
 
 from fastapi import FastAPI
@@ -11,12 +11,27 @@ from fastapi.dependencies import utils as _dependencies_utils
 from fastapi.dependencies.models import Dependant
 from fastapi.dependencies.utils import (
     _should_embed_body_fields,
-    get_body_field,
     get_dependant,
-    get_flat_dependant,
     get_parameterless_sub_dependant,
     get_typed_return_annotation,
 )
+
+try:
+    # fastapi >= 0.141.0
+    from fastapi.dependencies.utils import _get_body_field
+    from fastapi.routing import _build_dependant_with_parameterless_dependencies
+
+    get_body_field = None
+    get_flat_dependant = None
+except ImportError:
+    _get_body_field = None  # type: ignore[ty:invalid-assignment]
+    _build_dependant_with_parameterless_dependencies = None
+
+    from fastapi.dependencies.utils import (
+        get_body_field,  # type: ignore[ty:unresolved-import]
+        get_flat_dependant,  # type: ignore[ty:unresolved-import]
+    )
+
 from fastapi.routing import (
     APIRoute as _APIRoute,
 )
@@ -72,7 +87,12 @@ def _all_model_fields(route: _APIRouteType) -> Iterable[ModelField]:
     if isinstance(route, APIRoute) and route.response_field:
         yield route.response_field
 
-    yield from _all_dependant_fields(route._flat_dependant)
+    try:
+        dependant = route._flat_dependant  # type: ignore[ty:unresolved-attribute]
+    except AttributeError:
+        dependant = route.dependant
+
+    yield from _all_dependant_fields(dependant)
 
 
 def _is_postponed_route_declaration(route: BaseRoute) -> TypeIs[_APIRouteType]:
@@ -80,6 +100,33 @@ def _is_postponed_route_declaration(route: BaseRoute) -> TypeIs[_APIRouteType]:
         return any(_is_postponed_model_field(field) for field in _all_model_fields(route))
 
     return False
+
+
+def _rebuild_route_dependant(route: _APIRouteType) -> List[ModelField]:
+    if _build_dependant_with_parameterless_dependencies is not None:
+        (
+            route.dependant,
+            body_params,
+            route._embed_body_fields,
+        ) = _build_dependant_with_parameterless_dependencies(
+            path=route.path_format,
+            call=route.endpoint,
+            dependencies=route.dependencies,
+        )
+        return body_params
+
+    route.dependant = get_dependant(path=route.path_format, call=route.endpoint)
+    for depends in route.dependencies[::-1]:
+        route.dependant.dependencies.insert(
+            0,
+            get_parameterless_sub_dependant(depends=depends, path=route.path_format),
+        )
+
+    flat_dependant = get_flat_dependant(route.dependant)  # type: ignore[ty:call-non-callable]
+    route._flat_dependant = flat_dependant  # type: ignore[ty:invalid-assignment]
+    route._embed_body_fields = _should_embed_body_fields(flat_dependant.body_params)
+
+    return flat_dependant.body_params
 
 
 def _recreate_route_dependant(route: _APIRouteType) -> _APIRouteType:
@@ -98,35 +145,33 @@ def _recreate_route_dependant(route: _APIRouteType) -> _APIRouteType:
                 type_=route.response_model,
                 mode="serialization",
             )
-
-            route.secure_cloned_response_field = create_cloned_field(route.response_field)  # type: ignore[ty:unresolved-attribute]
         else:
             route.response_field = None
-            route.secure_cloned_response_field = None  # type: ignore[ty:unresolved-attribute]
 
-        route.dependant = get_dependant(path=route.path_format, call=route.endpoint)
-        for depends in route.dependencies[::-1]:
-            route.dependant.dependencies.insert(
-                0,
-                get_parameterless_sub_dependant(depends=depends, path=route.path_format),
+        if _get_body_field is None:
+            # fastapi < 0.141.0 keeps a securely cloned copy of the response field
+            if route.response_field is not None:
+                route.secure_cloned_response_field = create_cloned_field(route.response_field)
+            else:
+                route.secure_cloned_response_field = None
+
+        body_params = _rebuild_route_dependant(route)
+        if _get_body_field is not None:
+            route.body_field = _get_body_field(
+                body_params=body_params,
+                name=route.unique_id,
+                embed_body_fields=route._embed_body_fields,
             )
-        route._flat_dependant = get_flat_dependant(route.dependant)
-        route._embed_body_fields = _should_embed_body_fields(route._flat_dependant.body_params)
-        route.body_field = get_body_field(
-            flat_dependant=route._flat_dependant,
-            name=route.unique_id,
-            embed_body_fields=route._embed_body_fields,
-        )
+        else:
+            route.body_field = get_body_field(
+                flat_dependant=route._flat_dependant,
+                name=route.unique_id,
+                embed_body_fields=route._embed_body_fields,
+            )
+
         route.app = request_response(route.get_route_handler())
     elif isinstance(route, APIWebSocketRoute):
-        route.dependant = get_dependant(path=route.path_format, call=route.endpoint)
-        for depends in route.dependencies[::-1]:
-            route.dependant.dependencies.insert(
-                0,
-                get_parameterless_sub_dependant(depends=depends, path=route.path_format),
-            )
-        route._flat_dependant = get_flat_dependant(route.dependant)
-        route._embed_body_fields = _should_embed_body_fields(route._flat_dependant.body_params)
+        _rebuild_route_dependant(route)
         route.app = websocket_session(
             get_websocket_app(
                 dependant=route.dependant,
@@ -216,7 +261,7 @@ class PostponedAnnotationsBackporter(BaseBackporter):
 
         _FastAPI.__init__ = _FastAPIPatched.__init__
         _APIRoute.__init__ = _APIRoutePatched.__init__
-        _APIWebSocketRoutePatched.__init__ = _APIWebSocketRoutePatched.__init__
+        _APIWebSocketRoute.__init__ = _APIWebSocketRoutePatched.__init__
 
         _dependencies_utils.evaluate_forwardref = evaluate_forwardref  # type: ignore[ty:invalid-assignment]
 

@@ -68,6 +68,7 @@ ignore = [
     "PLR0912", # allow too many branches
     "PLR0913", # allow too many arguments
     "PLR0915", # allow too many statements
+    "CPY001", # ignore copyrights
 
     # full rule exclude
     "D", # ignore docstrings
