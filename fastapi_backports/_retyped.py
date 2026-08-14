@@ -455,7 +455,7 @@ if TYPE_CHECKING:
         ) -> None:
             pass
 
-    class APIRouter(_CommonRouterMethodsMixin, _APIRouter):
+    class APIRouter(_CommonRouterMethodsMixin, _APIRouter):  # type: ignore[ty:invalid-method-override]
         middleware: Optional[Sequence[Middleware]]
 
         @override
@@ -485,7 +485,7 @@ if TYPE_CHECKING:
         ) -> None:
             pass
 
-    class FastAPI(_CommonRouterMethodsMixin, _FastAPI):
+    class FastAPI(_CommonRouterMethodsMixin, _FastAPI):  # type: ignore[ty:invalid-method-override]
         router: APIRouter
 else:
     from fastapi import FastAPI
