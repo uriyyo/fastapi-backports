@@ -69,7 +69,7 @@ jobs:
           bash ./scripts/test.sh
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v7.1.0
+        uses: codecov/codecov-action@v7.1.1
         with:
           use_oidc: true
           files: ./coverage.xml
